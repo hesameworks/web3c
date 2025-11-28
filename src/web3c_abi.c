@@ -71,6 +71,51 @@ int web3c_abi_encode_bytes32(const unsigned char *value, unsigned char *out) {
     return 0;
 }
 
+int web3c_abi_encode_bytes(const uint8_t *data,
+                           size_t len,
+                           unsigned char *out,
+                           size_t out_size,
+                           size_t *out_len)
+{
+    if (out == NULL) {
+        return -1;
+    }
+    if (len > 0 && data == NULL) {
+        return -1;
+    }
+
+    /* Round length up to the next multiple of 32. */
+    size_t padded_len = 0;
+    if (len > 0) {
+        padded_len = ((len + WEB3C_ABI_WORD_SIZE - 1) / WEB3C_ABI_WORD_SIZE) * WEB3C_ABI_WORD_SIZE;
+    }
+
+    size_t total = WEB3C_ABI_WORD_SIZE + padded_len;
+
+    if (out_size < total) {
+        return -1;
+    }
+
+    /* Encode length as uint256 in the first 32 bytes. */
+    if (web3c_abi_encode_uint256((uint64_t)len, out) != 0) {
+        return -1;
+    }
+
+    /* Zero the tail (padded area). */
+    if (padded_len > 0) {
+        memset(out + WEB3C_ABI_WORD_SIZE, 0, padded_len);
+        /* Copy actual data into the beginning of the tail. */
+        memcpy(out + WEB3C_ABI_WORD_SIZE, data, len);
+    }
+
+    if (out_len != NULL) {
+        *out_len = total;
+    }
+
+    return 0;
+}
+
+
 int web3c_abi_function_selector(const char *signature, unsigned char out[4]) {
     if (signature == NULL || out == NULL) {
         return -1;
