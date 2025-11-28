@@ -49,6 +49,34 @@ int web3c_abi_encode_uint256(uint64_t value, unsigned char *out);
 int web3c_abi_encode_address(const unsigned char *address, unsigned char *out);
 
 /*
+ * Encode a Solidity bool into a 32-byte ABI word.
+ *
+ * Any non-zero value is treated as true (1), zero as false (0).
+ * The value is stored in the least significant byte of the word,
+ * with all other bytes set to zero.
+ *
+ * Parameters:
+ *   value - integer value to interpret as bool.
+ *   out   - pointer to a buffer of at least 32 bytes.
+ *
+ * Returns:
+ *   0 on success, non-zero on error.
+ */
+int web3c_abi_encode_bool(int value, unsigned char *out);
+
+/*
+ * Encode a Solidity bytes32 value into a 32-byte ABI word.
+ *
+ * Parameters:
+ *   value - pointer to a buffer of exactly 32 bytes.
+ *   out   - pointer to a buffer of at least 32 bytes.
+ *
+ * Returns:
+ *   0 on success, non-zero on error.
+ */
+int web3c_abi_encode_bytes32(const unsigned char *value, unsigned char *out);
+
+/*
  * Compute the 4-byte function selector for a given Solidity signature.
  *
  * Example:
