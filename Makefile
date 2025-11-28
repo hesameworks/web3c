@@ -10,7 +10,8 @@ SRC = \
     src/web3c_abi.c \
     src/web3c_hex.c \
     src/web3c_keccak.c \
-	src/web3c_tx.c
+	src/web3c_tx.c \
+	src/web3c_rlp.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -21,7 +22,8 @@ TEST_SRCS = \
     tests/test_abi.c \
     tests/test_keccak.c \
     tests/test_selector.c \
-	tests/test_tx.c
+	tests/test_tx.c \
+	tests/test_rlp.c
 
 TEST_BINS = $(TEST_SRCS:.c=)
 
@@ -31,7 +33,8 @@ EXAMPLE_SRCS = \
     examples/erc20_transfer_calldata.c \
     examples/abi_types_demo.c \
 	examples/setdata_bytes_calldata.c \
-	examples/tx_legacy_demo.c
+	examples/tx_legacy_demo.c \
+	examples/tx_legacy_rlp_demo.c
 
 EXAMPLE_BINS = $(EXAMPLE_SRCS:.c=)
 
@@ -69,6 +72,7 @@ test: $(LIB) tests
 	@./tests/test_keccak
 	@./tests/test_selector
 	@./tests/test_tx
+	@./tests/test_rlp
 	@echo "All tests passed."
 
 clean:
