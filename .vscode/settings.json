@@ -3,6 +3,7 @@
         "type_traits": "c",
         "utility": "c",
         "rlp.h": "c",
-        "keccak.h": "c"
+        "keccak.h": "c",
+        "stdio.h": "c"
     }
 }
