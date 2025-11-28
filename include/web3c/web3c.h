@@ -11,5 +11,6 @@
 #include "abi.h"
 #include "hex.h"
 #include "keccak.h"
+#include "tx.h"
 
 #endif /* WEB3C_WEB3C_H */
