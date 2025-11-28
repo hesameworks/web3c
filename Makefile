@@ -9,7 +9,8 @@ CPPFLAGS = -Iinclude
 SRC = \
     src/web3c_abi.c \
     src/web3c_hex.c \
-    src/web3c_keccak.c
+    src/web3c_keccak.c \
+	src/web3c_tx.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -19,7 +20,8 @@ LIB = libweb3c.a
 TEST_SRCS = \
     tests/test_abi.c \
     tests/test_keccak.c \
-    tests/test_selector.c
+    tests/test_selector.c \
+	tests/test_tx.c
 
 TEST_BINS = $(TEST_SRCS:.c=)
 
@@ -28,7 +30,8 @@ EXAMPLE_SRCS = \
     examples/simple_encode.c \
     examples/erc20_transfer_calldata.c \
     examples/abi_types_demo.c \
-	examples/setdata_bytes_calldata.c
+	examples/setdata_bytes_calldata.c \
+	examples/tx_legacy_demo.c
 
 EXAMPLE_BINS = $(EXAMPLE_SRCS:.c=)
 
@@ -65,6 +68,7 @@ test: $(LIB) tests
 	@./tests/test_abi
 	@./tests/test_keccak
 	@./tests/test_selector
+	@./tests/test_tx
 	@echo "All tests passed."
 
 clean:
