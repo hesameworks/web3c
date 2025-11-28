@@ -1,0 +1,31 @@
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+Copyright (c) 2025 Hesamedine
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+
+You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed 
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
+CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+specific language governing permissions and limitations under the License.
+
+-------------------------------------------------------------------------------
+Additional Attribution Requirement
+-------------------------------------------------------------------------------
+
+If this software (or any derivative work) is used in a commercial product, a 
+publicly visible attribution must be included, such as:
+
+   "This product includes components from Web3C 
+    (https://github.com/hesameworks/web3c) 
+     developed by Hesamedine."
+
+This attribution notice must remain intact in documentation, about pages, or 
+product credits. Removing or altering this notice is not permitted.
