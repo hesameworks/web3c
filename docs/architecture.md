@@ -228,7 +228,80 @@ A small tx module to:
   - Signature handling.
 This is especially useful for offline tools that want to prepare raw transactions to be signed by hardware wallets or air-gapped systems.
 
-## 7. Design Principles
+## 7. Transaction module (legacy v1)
+
+### 7.1 Scope
+
+The `tx` module in Web3C focuses on a minimal, explicit representation of
+legacy (pre-EIP-1559) Ethereum transactions. The goal is:
+
+- Provide a small, dependency-free `struct` that can be used by
+  offline tools, test harnesses, and educational projects.
+- Avoid dynamic allocation inside the library – callers own all buffers.
+- Keep numeric fields at `uint64_t` for now, which is sufficient for
+  many testnets and local tools, while keeping the design open for a
+  future 256-bit representation.
+
+At this stage, the module does **not** perform RLP encoding or signing.
+It only models the transaction in memory and provides basic validation.
+
+### 7.2 Legacy struct layout
+
+The core type is:
+
+```c
+typedef struct {
+    uint64_t nonce;
+    uint64_t gas_price;
+    uint64_t gas_limit;
+    uint64_t value;
+
+    uint64_t chain_id;   /* Zero means "unset". */
+
+    int      has_to;     /* 0 = contract creation, 1 = call to address. */
+    uint8_t  to[20];     /* Recipient address (ignored if has_to == 0). */
+
+    const uint8_t *data; /* Pointer to call data (owned by caller). */
+    size_t        data_len;
+} web3c_tx_legacy;
+```
+Design notes:
+- All monetary and gas-related amounts are kept as uint64_t. This is a deliberate trade-off between simplicity and completeness. Many scripts and small tools never hit the upper bounds of 256-bit values.
+- Contract creation is represented by has_to == 0. In that case the to field is ignored.
+- Call data is represented as a (pointer, length) pair. The library does not allocate or free this memory.
+
+### 7.3 Ownership model and helpers
+
+The following helpers are provided:
+- void web3c_tx_legacy_init(web3c_tx_legacy *tx);
+  - Zero-initializes the struct and sets has_to = 0, data = NULL, data_len = 0.
+  - Callers are expected to fill in the numeric fields explicitly.
+- int web3c_tx_legacy_set_to(web3c_tx_legacy *tx, const uint8_t to[20]);
+  - Copies a 20-byte address into tx->to and sets has_to = 1.
+- int web3c_tx_legacy_set_data(web3c_tx_legacy *tx, const uint8_t *data, size_t len);
+  - Sets the (pointer, length) pair for call data.
+  - Does not copy the buffer; the caller retains ownership.
+  - len == 0 with data == NULL is treated as “no data”.
+- int web3c_tx_legacy_validate(const web3c_tx_legacy *tx);
+  - Performs minimal sanity checks:
+    - tx must not be NULL.
+    - chain_id must be non-zero.
+    - gas_limit must be non-zero.
+    - If data_len > 0, then data must not be NULL.
+- Returns 0 if the struct is usable, non-zero otherwise.
+This keeps the module small but safe enough for higher-level tools to
+build on top of (RLP encoding, signing, broadcasting).
+
+### 7.4 Future: RLP and signing
+The next planned steps for the tx module are:
+- RLP size estimation and encoding for web3c_tx_legacy.
+- A clear separation between:
+  - “unsigned” transaction (fields only).
+  - “signed” transaction (including v, r, s).
+- Optional helpers for building RLP blobs that can be sent over JSON-RPC
+(e.g. eth_sendRawTransaction).
+
+## 8. Design Principles
 ### 1.C-first, but bindings-friendly
 The API is designed so that later it can be wrapped easily by:
 - Python
@@ -240,7 +313,7 @@ All functions operate purely on inputs and outputs. This makes it easier to embe
 Small, explicit functions with fully documented preconditions. The goal is to make code reviews, fuzzing and formal analysis easier in the future.
 ### 4.Small surface area
 Prefer a small but well-designed API that can be composed, instead of a huge, complicated one.
-## 8. Testing Strategy
+## 9. Testing Strategy
 - Unit tests live under tests/.
 - make test builds the static library and runs all tests.
 - Current coverage:
@@ -250,6 +323,6 @@ Prefer a small but well-designed API that can be composed, instead of a huge, co
   - Add more ABI test vectors based on official Ethereum ABI examples.
   - Add fuzzing harnesses (e.g. using libFuzzer or AFL++).
   - Add CI integration to run tests on every commit.
-## 9. Status
+## 10. Status
 This document reflects Phase 1 of the project.
 The API surface is not stable yet and may change as more ABI types, Keccak-256 helpers and transaction builders are introduced.
