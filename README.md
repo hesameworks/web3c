@@ -26,3 +26,7 @@
 ```bash
 make
 make test
+```
+
+## License
+- TBD (MIT/BSD-style is recommended).
