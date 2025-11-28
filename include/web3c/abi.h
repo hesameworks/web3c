@@ -73,8 +73,36 @@ int web3c_abi_encode_bool(int value, unsigned char *out);
  *
  * Returns:
  *   0 on success, non-zero on error.
- */
+*/
 int web3c_abi_encode_bytes32(const unsigned char *value, unsigned char *out);
+
+/*
+ * Encode a Solidity bytes value (dynamic length) into ABI format.
+ *
+ * Layout:
+ *   - 32 bytes: length (uint256, big-endian)
+ *   - N bytes:  actual data
+ *   - padding with zeros up to a multiple of 32 bytes
+ *
+ * This helper encodes only the "tail" (length + padded data) for a single
+ * bytes value. When used as a single argument to a function, the caller is
+ * responsible for placing the correct offset (usually 0x20) in the head.
+ *
+ * Parameters:
+ *   data     - pointer to input bytes (can be NULL if len == 0).
+ *   len      - number of input bytes.
+ *   out      - output buffer.
+ *   out_size - size of the output buffer in bytes.
+ *   out_len  - if non-NULL, receives the number of bytes written.
+ *
+ * Returns:
+ *   0 on success, non-zero on error (e.g. NULL pointers, buffer too small).
+ */
+int web3c_abi_encode_bytes(const uint8_t *data,
+    size_t len,
+    unsigned char *out,
+    size_t out_size,
+    size_t *out_len);
 
 /*
  * Compute the 4-byte function selector for a given Solidity signature.
@@ -89,7 +117,7 @@ int web3c_abi_encode_bytes32(const unsigned char *value, unsigned char *out);
  *
  * Returns:
  *   0 on success, non-zero on error (e.g. NULL pointers).
- */
+*/
 int web3c_abi_function_selector(const char *signature, unsigned char out[4]);
 
 #ifdef __cplusplus
