@@ -1,46 +1,54 @@
-CC      := gcc
-CFLAGS  := -std=c11 -Wall -Wextra -pedantic -Iinclude
-AR      := ar
-ARFLAGS := rcs
+CC      = gcc
+AR      = ar
+ARFLAGS = rcs
 
-SRC_DIR := src
-TEST_DIR := tests
-EXAMPLES_DIR := examples
-BUILD_DIR := build
+CFLAGS   = -std=c11 -Wall -Wextra -Wpedantic -O2
+CPPFLAGS = -Iinclude
 
-LIB_NAME := libweb3c.a
+# Core library sources
+SRC = \
+    src/web3c_abi.c \
+    src/web3c_hex.c \
+    src/web3c_keccak.c
 
-SRC := $(SRC_DIR)/web3c_abi.c \
-       $(SRC_DIR)/web3c_hex.c
+OBJ = $(SRC:.c=.o)
 
-OBJS := $(SRC:%.c=$(BUILD_DIR)/%.o)
+LIB = libweb3c.a
 
-TEST_BIN := $(BUILD_DIR)/test_abi
-EXAMPLE_BIN := $(BUILD_DIR)/simple_encode
+# Test binaries
+TEST_BINS = \
+    tests/test_abi \
+    tests/test_keccak
 
-all: $(BUILD_DIR)/$(LIB_NAME) $(TEST_BIN) $(EXAMPLE_BIN)
+.PHONY: all clean tests test
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR) \
-	         $(BUILD_DIR)/$(TEST_DIR) \
-	         $(BUILD_DIR)/$(EXAMPLES_DIR)
+# Default target: build the static library
+all: $(LIB)
 
-$(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+# Build static library
+$(LIB): $(OBJ)
+	$(AR) $(ARFLAGS) $@ $^
 
-$(BUILD_DIR)/$(LIB_NAME): $(OBJS) | $(BUILD_DIR)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+# Generic rule for building objects
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-$(TEST_BIN): $(TEST_DIR)/test_abi.c $(BUILD_DIR)/$(LIB_NAME)
-	$(CC) $(CFLAGS) -L$(BUILD_DIR) -lweb3c $< -o $@
+# Build test binaries (each test links against libweb3c)
+tests/test_abi: tests/test_abi.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-$(EXAMPLE_BIN): $(EXAMPLES_DIR)/simple_encode.c $(BUILD_DIR)/$(LIB_NAME)
-	$(CC) $(CFLAGS) -L$(BUILD_DIR) -lweb3c $< -o $@
+tests/test_keccak: tests/test_keccak.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
-test: $(TEST_BIN)
-	$(TEST_BIN)
+# Build all tests (but do not run them)
+tests: $(TEST_BINS)
+
+# Build and run test suite
+test: $(LIB) tests
+	@echo "Running tests..."
+	@./tests/test_abi
+	@./tests/test_keccak
+	@echo "All tests passed."
 
 clean:
-	rm -rf $(BUILD_DIR)
-
-.PHONY: all test clean
+	rm -f $(OBJ) $(LIB) $(TEST_BINS)
