@@ -38,6 +38,39 @@ int web3c_abi_encode_address(const unsigned char *address, unsigned char *out) {
     return 0;
 }
 
+int web3c_abi_encode_bool(int value, unsigned char *out) {
+    if (out == NULL) {
+        return -1;
+    }
+
+    /* Zero the entire 32-byte word. */
+    memset(out, 0, WEB3C_ABI_WORD_SIZE);
+
+    /*
+     * According to Solidity ABI:
+     * - false => 0
+     * - true  => 1
+     *
+     * We interpret any non-zero value as true.
+     */
+    out[WEB3C_ABI_WORD_SIZE - 1] = (value != 0) ? 0x01 : 0x00;
+
+    return 0;
+}
+
+int web3c_abi_encode_bytes32(const unsigned char *value, unsigned char *out) {
+    if (value == NULL || out == NULL) {
+        return -1;
+    }
+
+    /*
+     * bytes32 is already a fixed-size 32-byte value,
+     * so we simply copy the 32 bytes as-is.
+     */
+    memcpy(out, value, WEB3C_ABI_WORD_SIZE);
+    return 0;
+}
+
 int web3c_abi_function_selector(const char *signature, unsigned char out[4]) {
     if (signature == NULL || out == NULL) {
         return -1;
