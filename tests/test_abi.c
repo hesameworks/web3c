@@ -76,6 +76,32 @@ static void test_bytes32_basic(void) {
     assert(memcmp(out, val, WEB3C_ABI_WORD_SIZE) == 0);
 }
 
+static void test_bytes_dynamic_basic(void) {
+    unsigned char out[WEB3C_ABI_WORD_SIZE * 2]; /* 32 bytes length + 32 bytes data */
+    const uint8_t data[] = { 'h', 'e', 'l', 'l', 'o' };
+    const size_t len = sizeof(data);
+    size_t out_len = 0;
+
+    int rc = web3c_abi_encode_bytes(data, len, out, sizeof(out), &out_len);
+    assert(rc == 0);
+
+    /* For 5 bytes, padded_len = 32, so total = 64. */
+    assert(out_len == WEB3C_ABI_WORD_SIZE * 2);
+
+    /* First word: length = 5. */
+    unsigned char len_word[WEB3C_ABI_WORD_SIZE];
+    rc = web3c_abi_encode_uint256(len, len_word);
+    assert(rc == 0);
+    assert(memcmp(out, len_word, WEB3C_ABI_WORD_SIZE) == 0);
+
+    /* Tail: first 5 bytes = "hello", rest = 0. */
+    assert(memcmp(out + WEB3C_ABI_WORD_SIZE, data, len) == 0);
+
+    for (size_t i = WEB3C_ABI_WORD_SIZE + len; i < out_len; ++i) {
+        assert(out[i] == 0);
+    }
+}
+
 int main(void) {
     printf("Running Web3C ABI tests...\n");
 
