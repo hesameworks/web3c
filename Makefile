@@ -27,7 +27,8 @@ TEST_BINS = $(TEST_SRCS:.c=)
 EXAMPLE_SRCS = \
     examples/simple_encode.c \
     examples/erc20_transfer_calldata.c \
-    examples/abi_types_demo.c
+    examples/abi_types_demo.c \
+	examples/setdata_bytes_calldata.c
 
 EXAMPLE_BINS = $(EXAMPLE_SRCS:.c=)
 
