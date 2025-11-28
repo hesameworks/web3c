@@ -59,14 +59,43 @@ The public headers live under:
 - Make the data layout easy to reason about for security reviews.
 
 ### 3.2 Current Scope
+
 Implemented functions:
-- web3c_abi_encode_uint256(uint64_t value, unsigned char *out)
+
+- `web3c_abi_encode_uint256(uint64_t value, unsigned char *out)`
+
   - Encodes a 64-bit integer into a 32-byte ABI word.
   - Big-endian representation, value is placed in the last 8 bytes.
   - The buffer must have at least 32 bytes.
-- web3c_abi_encode_address(const unsigned char *address, unsigned char *out)
+
+- `web3c_abi_encode_address(const unsigned char *address, unsigned char *out)`
+
   - Encodes a 20-byte Ethereum address into a 32-byte ABI word.
   - The address is right-aligned (last 20 bytes), left padded with zeros.
+
+- `web3c_abi_encode_bool(int value, unsigned char *out)`
+
+  - Encodes a Solidity `bool` as a 32-byte ABI word.
+  - `false` → all-zero word.
+  - `true`  → last byte = `0x01`, all other bytes = `0x00`.
+  - Any non-zero input value is treated as `true`.
+
+- `web3c_abi_encode_bytes32(const unsigned char *value, unsigned char *out)`
+
+  - Encodes a fixed-size 32-byte `bytes32` value.
+  - Simply copies 32 bytes as-is into the ABI word.
+
+- `web3c_abi_encode_bytes(const uint8_t *data,
+                          size_t len,
+                          unsigned char *out,
+                          size_t out_size,
+                          size_t *out_len)`
+
+  - Encodes a dynamic `bytes` value as ABI tail:
+    - 32-byte length field (`uint256`, big-endian).
+    - Followed by the raw data.
+    - Followed by zero-padding up to a multiple of 32 bytes.
+  - Intended for the tail of a single-argument `bytes` parameter.
 
 ### 3.3 Error Handling
 Both functions return:
@@ -92,6 +121,34 @@ This helper is useful for:
 - Building calldata for contract calls.
 - Security tooling that needs to analyze or generate function selectors.
 - Minimal wallet / scripting utilities.
+
+### 3.5 Dynamic bytes layout
+
+Dynamic `bytes` in the Solidity ABI are encoded as:
+
+- A 32-byte length field (`uint256`).
+- The actual byte sequence.
+- Zero-padding up to a multiple of 32 bytes.
+
+In the case of a single `bytes` argument, the head contains a single
+offset (usually `0x20`), and the tail is exactly:
+
+- `length` word
+- padded data
+
+Web3C exposes this as:
+
+```c
+int web3c_abi_encode_bytes(const uint8_t *data,
+                           size_t len,
+                           unsigned char *out,
+                           size_t out_size,
+                           size_t *out_len);
+```
+The example examples/setdata_bytes_calldata demonstrates how to:
+- Compute the setData(bytes) selector.
+- Build the head with the correct offset.
+- Append the encoded tail (length + padded payload).
 
 ## 4. Hex Module Design
 The hex module exists because virtually every Web3 tooling flow needs:
