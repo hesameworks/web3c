@@ -12,14 +12,17 @@
   - `bool`
   - `bytes32`
   - `bytes` (dynamic, single-argument tail encoder)
+- Function selector helper:
+  - Compute 4-byte selectors from Solidity signatures
+    (e.g. `"transfer(address,uint256)"` → `a9059cbb`).
 - Hex utilities:
-  - Binary to hex (lowercase)
-  - Hex to binary
-- Ethereum-style **Keccak-256** hashing:
-  - One-shot helper: `web3c_keccak256(...)`
-  - Streaming API: `init / update / final`
-- Function selector helper for Solidity signatures:
-  - `web3c_abi_function_selector("transfer(address,uint256)", ...)`
+  - Binary → hex (lowercase)
+  - Hex → binary
+- Ethereum-style **Keccak-256**:
+  - One-shot and streaming API.
+- Legacy Ethereum transaction primitives:
+  - `web3c_tx_legacy` struct (nonce, gas, value, to, chain_id, data)
+  - Small helpers for init, setting fields, and basic validation.
 
 ## Motivation
 
@@ -61,11 +64,17 @@ Some small examples live under the `examples/` directory:
 
 ## Roadmap
 
-- Function selector helpers built on top of Keccak-256.
-- Full static ABI encoding for:
-  - `bool`, `bytes32`, static arrays
-- Transaction building primitives for EVM-compatible chains.
-- JSON-RPC client helpers (optional, pluggable).
+- ABI:
+  - Fixed-size arrays (e.g. `uint256[2]`)
+  - More dynamic types (e.g. `string`, multi-argument layouts)
+- Transactions:
+  - RLP size estimation and encoding for `web3c_tx_legacy`
+  - Support for EIP-1559 style transactions (maxFee, maxPriorityFee)
+- Crypto & security:
+  - Small helpers around message hashing and domain separation
+- Integration:
+  - Optional JSON-RPC helpers (pluggable, no global state)
+  - Small CLI tools built on top of Web3C (offline calldata / tx builder)
 
 ## Build
 
