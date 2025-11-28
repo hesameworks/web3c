@@ -2,6 +2,7 @@
     "files.associations": {
         "type_traits": "c",
         "utility": "c",
-        "rlp.h": "c"
+        "rlp.h": "c",
+        "keccak.h": "c"
     }
 }
