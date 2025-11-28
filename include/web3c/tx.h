@@ -92,6 +92,43 @@ int web3c_tx_legacy_set_data(web3c_tx_legacy *tx,
  */
 int web3c_tx_legacy_validate(const web3c_tx_legacy *tx);
 
+/*
+ * Compute the size of the RLP encoding for the "unsigned" legacy
+ * transaction preimage as per EIP-155:
+ *
+ *   [nonce, gasPrice, gasLimit, to, value, data, chainId, 0, 0]
+ *
+ * Parameters:
+ *   tx       - transaction to encode (must be valid).
+ *   out_size - receives the required number of bytes.
+ *
+ * Returns:
+ *   0 on success, non-zero on error.
+ */
+int web3c_tx_legacy_rlp_size(const web3c_tx_legacy *tx, size_t *out_size);
+
+/*
+ * Encode the "unsigned" legacy transaction as an RLP list:
+ *
+ *   [nonce, gasPrice, gasLimit, to, value, data, chainId, 0, 0]
+ *
+ * This is suitable as the preimage to be hashed and signed according to
+ * EIP-155. It does NOT include any signature fields in the struct itself.
+ *
+ * Parameters:
+ *   tx       - transaction to encode (must be valid).
+ *   out      - output buffer.
+ *   out_size - size of the output buffer.
+ *   out_len  - if non-NULL, receives the number of bytes written.
+ *
+ * Returns:
+ *   0 on success, non-zero on error.
+ */
+int web3c_tx_legacy_rlp_encode(const web3c_tx_legacy *tx,
+                               uint8_t *out,
+                               size_t out_size,
+                               size_t *out_len);
+
 #ifdef __cplusplus
 }
 #endif
