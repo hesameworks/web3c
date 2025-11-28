@@ -6,16 +6,20 @@
 
 ## Features (Phase 1)
 
-- Minimal ABI encoding:
+- Minimal ABI encoding for core Solidity types:
   - `uint256` (from `uint64_t`)
   - `address` (20-byte)
+  - `bool`
+  - `bytes32`
+  - `bytes` (dynamic, single-argument tail encoder)
 - Hex utilities:
   - Binary to hex (lowercase)
   - Hex to binary
 - Ethereum-style **Keccak-256** hashing:
   - One-shot helper: `web3c_keccak256(...)`
   - Streaming API: `init / update / final`
-- Function selector helper for Solidity signatures (`web3c_abi_function_selector`).
+- Function selector helper for Solidity signatures:
+  - `web3c_abi_function_selector("transfer(address,uint256)", ...)`
 
 ## Motivation
 
@@ -41,8 +45,19 @@ layer** that can be embedded almost anywhere.
 
 Some small examples live under the `examples/` directory:
 
-- `examples/simple_encode` – encode a `uint256` into a 32-byte ABI word and print it as hex.
-- `examples/erc20_transfer_calldata` – build ERC-20 `transfer(address,uint256)` calldata from CLI arguments.
+- `examples/simple_encode`  
+  Encode a `uint256` into a 32-byte ABI word and print it as hex.
+
+- `examples/abi_types_demo`  
+  Demonstrate ABI encoding for `uint256`, `bool` and `bytes32`.
+
+- `examples/erc20_transfer_calldata`  
+  Build ERC-20 `transfer(address,uint256)` calldata from CLI arguments.
+
+- `examples/setdata_bytes_calldata`  
+  Build calldata for a hypothetical `setData(bytes)` function,
+  showing how dynamic `bytes` are encoded (head + tail layout).
+
 
 ## Roadmap
 
