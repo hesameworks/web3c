@@ -109,6 +109,7 @@ int main(void) {
     test_address_basic();
     test_bool_basic();
     test_bytes32_basic();
+    test_bytes_dynamic_basic();
 
     printf("All tests passed.\n");
     return 0;
