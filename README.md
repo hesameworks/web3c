@@ -15,6 +15,7 @@
 - Ethereum-style **Keccak-256** hashing:
   - One-shot helper: `web3c_keccak256(...)`
   - Streaming API: `init / update / final`
+- Function selector helper for Solidity signatures (`web3c_abi_function_selector`).
 
 ## Motivation
 
@@ -35,6 +36,13 @@ layer** that can be embedded almost anywhere.
 - **No dynamic allocation** in core modules – the caller controls all memory.
 - **Small and explicit API** – easy to audit and reason about.
 - **Friendly to FFI and bindings** – simple C types, no global state.
+
+## Examples
+
+Some small examples live under the `examples/` directory:
+
+- `examples/simple_encode` – encode a `uint256` into a 32-byte ABI word and print it as hex.
+- `examples/erc20_transfer_calldata` – build ERC-20 `transfer(address,uint256)` calldata from CLI arguments.
 
 ## Roadmap
 

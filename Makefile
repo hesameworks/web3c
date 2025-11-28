@@ -23,10 +23,17 @@ TEST_SRCS = \
 
 TEST_BINS = $(TEST_SRCS:.c=)
 
-.PHONY: all tests test clean
+# Example sources and binaries
+EXAMPLE_SRCS = \
+    examples/simple_encode.c \
+    examples/erc20_transfer_calldata.c
+
+EXAMPLE_BINS = $(EXAMPLE_SRCS:.c=)
+
+.PHONY: all tests test examples clean
 
 # Default: only build the static library
-all: $(LIB)
+all: $(LIB) tests examples
 
 # Build static library
 $(LIB): $(OBJ)
@@ -40,6 +47,13 @@ $(LIB): $(OBJ)
 tests/%: tests/%.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
+# Build example binaries (each example links against libweb3c)
+examples/%: examples/%.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
+# Build all examples
+examples: $(EXAMPLE_BINS)
+
 # Build all tests (but do not run them)
 tests: $(TEST_BINS)
 
@@ -52,4 +66,4 @@ test: $(LIB) tests
 	@echo "All tests passed."
 
 clean:
-	rm -f $(OBJ) $(LIB) $(TEST_BINS)
+	rm -f $(OBJ) $(LIB) $(TEST_BINS) $(EXAMPLE_BINS)

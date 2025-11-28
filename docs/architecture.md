@@ -77,6 +77,22 @@ The library does not allocate memory internally. The caller is always responsibl
 - Checking return codes and handling errors.
 In the future, we may introduce a small web3c_error.h with well-defined error codes instead of generic non-zero values.
 
+### 3.4 Function selectors
+
+On top of the basic ABI primitives, Web3C provides a small helper for computing
+4-byte function selectors used by Ethereum smart contracts:
+
+```c
+int web3c_abi_function_selector(const char *signature,
+                                unsigned char out[4]);
+```
+- signature is a null-terminated Solidity function signature, e.g. "transfer(address,uint256)".
+- The function computes keccak256(signature) using the Keccak module and copies the first 4 bytes into out.
+This helper is useful for:
+- Building calldata for contract calls.
+- Security tooling that needs to analyze or generate function selectors.
+- Minimal wallet / scripting utilities.
+
 ## 4. Hex Module Design
 The hex module exists because virtually every Web3 tooling flow needs:
 - Converting binary data (ABI words, hashes, raw transactions) to hex strings.
