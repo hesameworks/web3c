@@ -48,6 +48,22 @@ int web3c_abi_encode_uint256(uint64_t value, unsigned char *out);
  */
 int web3c_abi_encode_address(const unsigned char *address, unsigned char *out);
 
+/*
+ * Compute the 4-byte function selector for a given Solidity signature.
+ *
+ * Example:
+ *   signature = "transfer(address,uint256)"
+ *   selector  = first 4 bytes of keccak256(signature)
+ *
+ * Parameters:
+ *   signature - null-terminated ASCII function signature.
+ *   out       - pointer to a 4-byte buffer that receives the selector.
+ *
+ * Returns:
+ *   0 on success, non-zero on error (e.g. NULL pointers).
+ */
+int web3c_abi_function_selector(const char *signature, unsigned char out[4]);
+
 #ifdef __cplusplus
 }
 #endif
