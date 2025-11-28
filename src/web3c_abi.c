@@ -1,4 +1,5 @@
 #include "web3c/abi.h"
+#include "web3c/keccak.h"
 
 #include <string.h>
 
@@ -33,6 +34,24 @@ int web3c_abi_encode_address(const unsigned char *address, unsigned char *out) {
      * Copy the 20-byte address into the last 20 bytes of the word.
      */
     memcpy(out + (WEB3C_ABI_WORD_SIZE - 20), address, 20);
+
+    return 0;
+}
+
+int web3c_abi_function_selector(const char *signature, unsigned char out[4]) {
+    if (signature == NULL || out == NULL) {
+        return -1;
+    }
+
+    uint8_t hash[32];
+
+    /* Compute keccak256(signature) as used by Ethereum for function selectors. */
+    if (web3c_keccak256((const uint8_t *)signature, strlen(signature), hash) != 0) {
+        return -1;
+    }
+
+    /* First 4 bytes are the function selector. */
+    memcpy(out, hash, 4);
 
     return 0;
 }
