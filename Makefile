@@ -26,7 +26,8 @@ TEST_BINS = $(TEST_SRCS:.c=)
 # Example sources and binaries
 EXAMPLE_SRCS = \
     examples/simple_encode.c \
-    examples/erc20_transfer_calldata.c
+    examples/erc20_transfer_calldata.c \
+    examples/abi_types_demo.c
 
 EXAMPLE_BINS = $(EXAMPLE_SRCS:.c=)
 
