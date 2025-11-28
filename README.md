@@ -1,14 +1,14 @@
 # Web3C
 
-Web3C is a lightweight C library providing low-level, offline-friendly primitives for interacting with Web3 / Ethereum-like blockchains.
+Web3C is a lightweight C library that provides low-level, offline-friendly primitives for interacting with Ethereum-like (EVM-based) blockchains.
 
-> Status: Experimental – API is not stable yet.
+> Status: **Experimental** – API is not stable yet.
 
 ---
 
-## Features
+## ✨ Features
 
-### 🔹 ABI Encoding
+### ABI Encoding
 
 Minimal ABI encoder for core Solidity types:
 
@@ -16,139 +16,86 @@ Minimal ABI encoder for core Solidity types:
 - `address` (20-byte)
 - `bool`
 - `bytes32`
-- `bytes` (dynamic, single-argument tail encoder)
+- `bytes` (dynamic, tail encoder)
 
 Supported patterns:
 
 - Single value encoding (e.g. `uint256` → 32-byte word)
-- Static arguments in the head
-- Dynamic `bytes` encoded in the tail (offset + length + data)
+- Static head arguments
+- Dynamic `bytes` tail (offset + length + data + padding)
 
-### 🔹 Function Selectors
+### Function Selectors
 
 - Compute 4-byte function selectors from Solidity signatures:
   - `"transfer(address,uint256)"` → `a9059cbb`
 - Uses Ethereum-style Keccak-256 under the hood.
 
-### 🔹 Hex Utilities
+### Hex Utilities
 
 - Binary → hex (lowercase)
 - Hex → binary
-- Helpful for printing ABI, RLP, and hash outputs in CLI tools.
+- Useful for printing ABI, RLP and hash outputs in CLI tools.
 
-### 🔹 Keccak-256
+### Keccak-256
 
 Ethereum-style Keccak-256 hash function:
 
-- One-shot API for simple uses
-- Streaming API for large or incremental data
+- One-shot API
+- Streaming API
 
-### 🔹 Legacy Transaction Primitives
+### Legacy Transaction Primitives
 
-A minimal, dependency-free representation of Ethereum legacy transactions:
+Minimal representation of Ethereum legacy transactions:
 
 - `web3c_tx_legacy` struct:
   - `nonce`
   - `gas_price`
   - `gas_limit`
-  - `to` (20-byte address or empty for contract creation)
   - `value`
   - `chain_id`
-  - `data` (pointer + length)
-- Small helpers for:
-  - Initialization
-  - Setting fields
-  - Basic validation (e.g. data pointer/length consistency)
+  - `has_to` + `to[20]`
+  - `data` pointer + `data_len`
 
-### 🔹 RLP Encoding
+Helpers for:
 
-A small RLP module, focused on primitives needed for Ethereum transactions:
+- Initialization
+- Setting fields
+- Basic validation
 
-- RLP for:
-  - `uint64` (string form)
-  - Raw byte strings
-  - List headers (short & long)
-- Size-only mode:
-  - Pass `out == NULL` to only compute the required buffer size.
-- Legacy transaction RLP (unsigned preimage):
-  - Encodes `[nonce, gasPrice, gasLimit, to, value, data, chainId, 0, 0]`
-  - Suitable as a preimage for:
-    - Keccak-256 hashing
-    - secp256k1 signing
+### RLP Encoding
 
----
+Minimal RLP primitives:
 
-## Motivation
+- `uint64` → RLP string
+- `bytes` → RLP string
+- List header
 
-Most Web3 tooling is written in high-level languages (TypeScript, Python, Rust). Web3C targets a different layer:
+Legacy transaction RLP (unsigned EIP-155 preimage):
 
-- Embedded systems
-- Minimal command-line tools
-- Security and research tooling
-- Environments where a small, auditable C library is preferred over a large SDK
-
-The goal is not to replace existing Web3 SDKs, but to provide a thin, predictable layer that can be embedded almost anywhere.
-
----
-
-## Design Goals
-
-- **Offline-first** – core features work without any network or JSON-RPC.
-- **No dynamic allocation in core modules** – the caller controls all memory.
-- **Small and explicit API** – easy to audit and reason about.
-- **FFI & bindings friendly** – simple C types, no global state.
-- **Deterministic** – no hidden I/O, no randomness, no external dependencies.
-
-For more details, see [`docs/architecture.md`](docs/architecture.md).
-
----
-
-## Examples
-
-Small, self-contained examples live under the `examples/` directory:
-
-- `examples/simple_encode`  
-  Encode a `uint256` into a 32-byte ABI word and print it as hex.
-
-- `examples/abi_types_demo`  
-  Demonstrate ABI encoding for `uint256`, `bool`, `bytes32`, and `bytes` (dynamic) in a single program.
-
-- `examples/erc20_transfer_calldata`  
-  Build ERC-20 `transfer(address,uint256)` calldata from CLI arguments:
-  ```bash
-  ./examples/erc20_transfer_calldata 0x00112233445566778899aabbccddeeff00112233 1000
-  ```
--`examples/setdata_bytes_calldata`
-Build calldata for a hypothetical `setData(bytes)` function, showing how dynamic `bytes` are encoded (head + tail layout).
--`examples/tx_legacy_demo`
-Construct a `web3c_tx_legacy` transaction in memory, print its fields, and validate the struct (no RLP).
--`examples/tx_legacy_rlp_demo`
-Encode a legacy transaction into its unsigned RLP preimage and print the resulting hex:
-```bash
-./examples/tx_legacy_rlp_demo
+```text
+[ nonce,
+  gasPrice,
+  gasLimit,
+  to,
+  value,
+  data,
+  chainId,
+  0,
+  0 ]
 ```
-## Build
+Suitable as preimage for:
+- Keccak-256 hashing
+- secp256k1 signing (handled externally)
 
-```bash
-make
-make test
-make examples
-```
-This will build:
--`libweb3c.a` – the static library
--Test binaries under `tests/` and run them via `make test`
--Example binaries under `examples/` via `make examples`
-You can also compile and run individual tests or examples manually, for example:
-```bash
-gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude \
-    src/web3c_abi.c src/web3c_hex.c src/web3c_keccak.c src/web3c_tx.c src/web3c_rlp.c \
-    tests/test_abi.c \
-    -o test_abi_manual
+## 🎯 Who is this for?
+Web3C targets developers who:
+- Work in C and want to interact with Ethereum-like chains.
+- Need offline / air-gapped tooling (calldata builders, tx preimage tools, etc.).
+- Care about small, auditable C code instead of large SDKs.
+- Build security / research utilities around EVM internals.
+It is not a full Web3 SDK. It is a focused, low-level toolkit.
 
-./test_abi_manual
-```
-## Folder Structure
-
+## 📁 Project Structure
 ```text
 .
 ├── docs/
@@ -158,6 +105,7 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude \
 │   ├── abi_types_demo.c
 │   ├── erc20_transfer_calldata.c
 │   ├── setdata_bytes_calldata.c
+│   ├── tx_legacy_demo.c
 │   └── tx_legacy_rlp_demo.c
 ├── include/
 │   └── web3c/
@@ -180,41 +128,85 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude \
 │   ├── test_tx.c
 │   └── test_rlp.c
 ├── Makefile
+├── ATTNIBUTION
+├── LICENSE
 └── README.md
 ```
-(If the actual layout differs slightly, prefer the real tree, but this is the intended structure.)
-## Roadmap
-### ABI
-- Fixed-size arrays (e.g. uint256[2], bytes32[4])
-- Multi-argument dynamic layouts (e.g. (string, bytes))
-- Support for string via UTF-8 bytes
+## 🧪 Examples
+All examples are built with:
+```bash
+make examples
+```
+Then you can run:
+| Example                            | Description                                                     |
+| ---------------------------------- | --------------------------------------------------------------- |
+| `examples/simple_encode`           | Encode a `uint256` into a 32-byte ABI word and print as hex.    |
+| `examples/abi_types_demo`          | Showcase of `uint256`, `bool`, `bytes32`, and dynamic `bytes`.  |
+| `examples/erc20_transfer_calldata` | Build ERC-20 `transfer(address,uint256)` calldata from CLI.     |
+| `examples/setdata_bytes_calldata`  | Build calldata for `setData(bytes)` with dynamic bytes.         |
+| `examples/tx_legacy_demo`          | Construct a `web3c_tx_legacy` in memory and print its fields.   |
+| `examples/tx_legacy_rlp_demo`      | Encode a legacy tx into an unsigned RLP preimage and print hex. |
 
-### Transactions
-- Signed legacy transactions (RLP with v, r, s)
-- EIP-1559-style transaction struct and encoder
-- Helpers for transaction hashing (signing preimages)
+### Example:
+```bash
+./examples/erc20_transfer_calldata 0x00112233445566778899aabbccddeeff00112233 1000
+./examples/tx_legacy_rlp_demo
+```
+## 🛠 Build & Test
+Build the static library:
+```bash
+make
+```
+Run the test suite:
+```bash
+make test
+```
+Build examples:
+```bash
+make examples
+```
+You can also compile a single test manually:
+```bash
+gcc -std=c11 -Wall -Wextra -Wpedantic -Iinclude \
+    src/web3c_abi.c src/web3c_hex.c src/web3c_keccak.c src/web3c_tx.c src/web3c_rlp.c \
+    tests/test_abi.c \
+    -o test_abi_manual
 
-### Crypto & Security
-- Message hashing helpers (e.g. eth_sign prefix)
-- Domain separation helpers for typed data (exploratory)
+./test_abi_manual
+```
+## 🧱 Design Philosophy
 
-### Integration
-- Optional JSON-RPC helpers (pluggable, no global state)
-- Small CLI tools:
-  - Offline calldata builder
-  - Offline transaction builder
+- Offline-first – works without network or JSON-RPC.
+- No dynamic allocation in core modules – caller provides all buffers.
+- Small, explicit API – easier to audit and reason about.
+- Bindings-friendly – can be wrapped from Python, Rust, Go, etc.
+- No global state – safe for multi-threaded / embedded contexts.
 
-### Quality & Tooling
-- Fuzz tests for ABI and RLP
-- Continuous integration (CI) with multiple compilers
-- Additional examples and cookbook-style documentation
+See [docs/architecture.md](https://github.com/hesameworks/web3c/blob/main/docs/architecture.md) for more details.
 
-## License
-- Web3C is released under an Apache-2.0-style license with an additional attribution requirement.
-- Free to use for personal and commercial projects
+## 🗺 Roadmap (high-level)
+See [ROADMAP.md](https://github.com/hesameworks/web3c/blob/main/ROADMAP.md) for a more detailed list.
+
+Planned areas include:
+- More ABI types (arrays, string)
+- Signed legacy transactions
+- EIP-1559-style transactions
+- Optional JSON-RPC helpers
+- CLI tools (offline calldata / tx builder)
+- Fuzz testing & CI
+
+## 🤝 Contributing
+
+Contributions are welcome — from small bug fixes and tests to new examples and documentation improvements.
+See [CONTRIBUTING.md](https://github.com/hesameworks/web3c/blob/main/CONTRIBUTING.md) for details
+
+## ⚖️ License
+Web3C is released under an Apache-2.0-style license with an additional attribution requirement.
+
+Free for personal and commercial use.
+
 If used in a commercial product, a visible attribution must be included, such as:
-"This product includes components from web3c (https://github.com/hesameworks/web3c) developed by Hesamedine."
-See the LICENSE file for full details
 
-## About
-Web3C Library – a modular C library providing low-level, offline-friendly primitives for Ethereum/Web3: ABI encoding, transaction tools, and security-oriented helpers.
+"This product includes components from web3c [hesameworks](https://github.com/hesameworks/web3c)developed by Hesamedine."
+
+See [LICENSE](https://github.com/hesameworks/web3c/blob/main/LICENSE) for the full text.
