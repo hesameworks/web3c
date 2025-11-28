@@ -19,6 +19,7 @@ LIB = libweb3c.a
 TEST_BINS = \
     tests/test_abi \
     tests/test_keccak
+	tests/test_selector
 
 .PHONY: all clean tests test
 
@@ -40,6 +41,9 @@ tests/test_abi: tests/test_abi.c $(LIB)
 tests/test_keccak: tests/test_keccak.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
+tests/test_selector: tests/test_selector.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
+
 # Build all tests (but do not run them)
 tests: $(TEST_BINS)
 
@@ -48,6 +52,7 @@ test: $(LIB) tests
 	@echo "Running tests..."
 	@./tests/test_abi
 	@./tests/test_keccak
+	@./tests/test_selector
 	@echo "All tests passed."
 
 clean:
