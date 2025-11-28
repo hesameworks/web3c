@@ -15,15 +15,17 @@ OBJ = $(SRC:.c=.o)
 
 LIB = libweb3c.a
 
-# Test binaries
-TEST_BINS = \
-    tests/test_abi \
-    tests/test_keccak
-	tests/test_selector
+# Test sources and binaries
+TEST_SRCS = \
+    tests/test_abi.c \
+    tests/test_keccak.c \
+    tests/test_selector.c
 
-.PHONY: all clean tests test
+TEST_BINS = $(TEST_SRCS:.c=)
 
-# Default target: build the static library
+.PHONY: all tests test clean
+
+# Default: only build the static library
 all: $(LIB)
 
 # Build static library
@@ -35,13 +37,7 @@ $(LIB): $(OBJ)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 # Build test binaries (each test links against libweb3c)
-tests/test_abi: tests/test_abi.c $(LIB)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
-
-tests/test_keccak: tests/test_keccak.c $(LIB)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
-
-tests/test_selector: tests/test_selector.c $(LIB)
+tests/%: tests/%.c $(LIB)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
 # Build all tests (but do not run them)
