@@ -128,7 +128,7 @@ It is not a full Web3 SDK. It is a focused, low-level toolkit.
 │   ├── test_tx.c
 │   └── test_rlp.c
 ├── Makefile
-├── ATTNIBUTION
+├── ATTRIBUTION
 ├── LICENSE
 └── README.md
 ```
@@ -210,4 +210,4 @@ If used in a commercial product, a visible Attribution must be included, such as
 "This product includes components from web3c [hesameworks](https://github.com/hesameworks/web3c)developed by Hesamedine."
 
 See [LICENSE](https://github.com/hesameworks/web3c/blob/main/LICENSE) for the full text.
-See [Attribution](https://github.com/hesameworks/web3c/blob/main/ATTNIBUTION.md) for the full text.
+See [Attribution](https://github.com/hesameworks/web3c/blob/main/ATTRIBUTION.md) for the full text.
