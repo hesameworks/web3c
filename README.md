@@ -205,8 +205,9 @@ Web3C is released under an Apache-2.0-style license with an additional attributi
 
 Free for personal and commercial use.
 
-If used in a commercial product, a visible attribution must be included, such as:
+If used in a commercial product, a visible Attribution must be included, such as:
 
 "This product includes components from web3c [hesameworks](https://github.com/hesameworks/web3c)developed by Hesamedine."
 
 See [LICENSE](https://github.com/hesameworks/web3c/blob/main/LICENSE) for the full text.
+See [Attribution](https://github.com/hesameworks/web3c/blob/main/ATTNIBUTION.md) for the full text.
