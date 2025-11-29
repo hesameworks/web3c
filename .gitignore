@@ -1,0 +1,46 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+
+# Static library
+libweb3c.a
+
+# Test binaries
+tests/test_*
+test_*
+
+# Example binaries
+examples/*
+
+# Prevent committing compiled examples but allow source
+!examples/*.c
+
+# Core dump files
+core
+*.core
+
+# Editor / IDE files
+*.swp
+*.swo
+*.tmp
+
+# VSCode
+.vscode/
+
+# CLion / JetBrains
+.idea/
+
+# macOS
+.DS_Store
+
+# Linux trash
+.Trash-*
+
+# Logs
+*.log
+
+# Build directory (if added later)
+build/
