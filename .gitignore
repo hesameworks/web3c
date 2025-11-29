@@ -10,10 +10,12 @@ libweb3c.a
 
 # Test binaries
 tests/test_*
-test_*
+!tests/*.c
 
 # Example binaries
 examples/*
+!examples/*.c
+
 
 # Prevent committing compiled examples but allow source
 !examples/*.c
